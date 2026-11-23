@@ -1,0 +1,41 @@
+{
+    "files": {
+        "interview preparation": [
+            {
+                "task": "Research the company and its culture",
+                "status": "Completed"
+            },
+            {
+                "task": "Practice common interview questions",
+                "status": "Pending"
+            },
+            {
+                "task": "Prepare your resume and cover letter",
+                "status": "Pending"
+            }
+        ],
+        "study": [
+            {
+                "task": "syllabus overview",
+                "status": "Completed"
+            },
+            {
+                "task": "material collection",
+                "status": "Pending"
+            },
+            {
+                "task": "division of topics",
+                "status": "Pending"
+            },
+            {
+                "task": "preparation of notes",
+                "status": "Pending"
+            },
+            {
+                "task": "revision",
+                "status": "Pending"
+            }
+        ]
+    },
+    "active_file": "interview preparation"
+}
