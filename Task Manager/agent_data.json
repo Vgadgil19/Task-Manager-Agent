@@ -12,30 +12,38 @@
             {
                 "task": "Prepare your resume and cover letter",
                 "status": "Pending"
-            }
-        ],
-        "study": [
+            },
             {
-                "task": "syllabus overview",
+                "task": "Schedule mock interviews",
                 "status": "Completed"
             },
             {
-                "task": "material collection",
+                "task": "Review feedback from mock interviews",
+                "status": "Pending"
+            }
+        ],
+        "workout routine": [
+            {
+                "task": "Jumping jacks",
                 "status": "Pending"
             },
             {
-                "task": "division of topics",
+                "task": "Burpees",
+                "status": "Completed"
+            },
+            {
+                "task": "High knees",
                 "status": "Pending"
             },
             {
-                "task": "preparation of notes",
+                "task": "Mountain climbers",
                 "status": "Pending"
             },
             {
-                "task": "revision",
+                "task": "Squat jumps",
                 "status": "Pending"
             }
         ]
     },
-    "active_file": "interview preparation"
+    "active_file": "workout routine"
 }

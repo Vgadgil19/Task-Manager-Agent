@@ -35,6 +35,8 @@ def load_agent_data():
         active_file = data.get("active_file")
         print("Existing file loaded successfully!")
     else:
+        files = {}
+        active_file = None
         print("No Existing files, Please make one!")
 
 load_agent_data()
@@ -177,32 +179,48 @@ def switch_file(filename : str)->str:
     save_agent_data
     return f"Successfully switched to '{active_file}'. It is now the active list."
 
+@tool
+def list_files()-> str:
+    """ Display all the to do lists and identify the active one"""
+    if not files:
+        return "No existing To-Do-Lists!"
+    
+    result = ""
+    
+    for filename,tasks in files.items():
+        if filename.lower() == active_file.lower():
+            result += f"- {filename} (Active)\n"
+        else:
+            result += f"- {filename}\n"
+        
+        if not tasks:
+            result += "No tasks available!\n"
+            continue
+        for i, task in enumerate(tasks, start=1):
+            result += f"{i}. {task['task']} - {task['status']}\n"
+            
+    return result
+    
 
-tools = [create_file, add_task, complete_task, delete_task, save_list, delete_list, switch_file]
+
+tools = [create_file, add_task, complete_task, delete_task, save_list, delete_list, switch_file, list_files]
 
 llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0, max_tokens = 500).bind_tools(tools)
 
 def our_agent(state : AgentState) -> AgentState:
     sys_prompt = SystemMessage(content= f""" 
- You are a helpful Task Manager Agent responsible for managing multiple To-Do Lists.
+You are a helpful Task Manager Agent that manages multiple To-Do Lists.
 
-**Available operations:**
-- Create a new task list using `create_file`.
-- Add, complete, or delete tasks using the respective tools.
-- Copy the active list into another file using `save_list`.
-- Permanently delete an entire list using `delete_list`.
-- Switch between existing lists using `switch_file`.
+**Available tools:** `list_files`, `create_file`, `switch_file`, `add_task`, `complete_task`, `delete_task`, `save_list`, `delete_list`.
 
-**Core rules:**
-1. Check existing lists and the active list before performing operations.
-2. If the user mentions a specific existing list, use `switch_file` before modifying its tasks.
-3. Perform task operations only on the active list.
-4. Ask the user to create or select a list if none is active.
-5. Creating a list makes it active. Empty lists are allowed.
-6. Use `save_list` only to copy an existing active list, never to create or switch lists.
-7. Never delete an entire list when the user only wants to delete a task.
-8. Never claim an operation succeeded unless the relevant tool confirms it.
-9. After every modification, show the updated task list.
+**Rules:**
+1. Use `list_files` to view existing lists and their tasks.
+2. Restore the previously active list when the application starts.
+3. Keep the active list unchanged when viewing other lists. Switch only when explicitly requested.
+4. Perform all task modifications on the active list. Use `switch_file` before modifying another existing list.
+5. Use `create_file` for new empty lists and `save_list` only to copy an existing list.
+6. Never delete an entire list when asked to delete an individual task.
+7. Confirm operations only after tool success and display the updated list after modifications.
                                """ )
     
     if not state["messages"]:
@@ -251,7 +269,7 @@ with open("Task_manager.png", "wb") as f:
 
 def run_task_manager_agent():
     print("-" * 10 + "\n")
-    state = {"messages" : []}
+    state = {"messages" : []}    
     for step in app.stream(state, stream_mode="values"):
         if "messages" in step:
             print_mess(step["messages"])
