@@ -1,3 +1,4 @@
+#===============================Necessary Imports=================================#
 from langgraph.graph import StateGraph, END
 from langchain_core.messages import AIMessage, ToolMessage, SystemMessage, HumanMessage, BaseMessage
 from langchain_openai import ChatOpenAI
@@ -16,6 +17,8 @@ DATA_FILE = BASE_DIR/"agent_data.json"
 
 files = {}
 active_file = None
+
+#=================Functions to support tool Operation=============================#
 
 def save_agent_data():
     data = {
@@ -66,6 +69,7 @@ def get_active_files():
 class AgentState(TypedDict):
     messages : Annotated[Sequence[BaseMessage], add_messages]
 
+#====================================Tools======================================#
 
 @tool
 def create_file(filename: str) -> str:
@@ -202,23 +206,24 @@ def list_files()-> str:
     return result
     
 
-
 tools = [create_file, add_task, complete_task, delete_task, save_list, delete_list, switch_file, list_files]
 
 llm = ChatOpenAI(model="gpt-4.1-mini", temperature=0, max_tokens = 500).bind_tools(tools)
+
+#=====================================Agent=======================================#
 
 def our_agent(state : AgentState) -> AgentState:
     sys_prompt = SystemMessage(content= f""" 
 You are a helpful Task Manager Agent that manages multiple To-Do Lists.
 
-**Available tools:** `list_files`, `create_file`, `switch_file`, `add_task`, `complete_task`, `delete_task`, `save_list`, `delete_list`.
+Available tools: list_files, create_file, switch_file, add_task, complete_task, delete_task, save_list, delete_list.
 
-**Rules:**
-1. Use `list_files` to view existing lists and their tasks.
+Rules:
+1. Use list_files to view existing lists and their tasks.
 2. Restore the previously active list when the application starts.
 3. Keep the active list unchanged when viewing other lists. Switch only when explicitly requested.
-4. Perform all task modifications on the active list. Use `switch_file` before modifying another existing list.
-5. Use `create_file` for new empty lists and `save_list` only to copy an existing list.
+4. Perform all task modifications on the active list. Use switch_file before modifying another existing list.
+5. Use create_file for new empty lists and save_list only to copy an existing list.
 6. Never delete an entire list when asked to delete an individual task.
 7. Confirm operations only after tool success and display the updated list after modifications.
                                """ )
@@ -249,6 +254,7 @@ def print_mess(messages):
         if isinstance(messages, ToolMessage):
             print(f"Tool Result: {ToolMessage}")
 
+#======================================Graph=========================================#
 
 graph = StateGraph(AgentState)
 graph.add_node("agent", our_agent)
